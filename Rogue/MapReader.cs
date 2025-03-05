@@ -50,8 +50,6 @@ namespace Rogue
             Map loadedMap = JsonConvert.DeserializeObject<Map>(fileContents,new JsonSerializerSettings{ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor});
 
 
-
-
             return loadedMap;
         }
 
