@@ -33,6 +33,9 @@
     <None Update="Sound\Car Shwoosh.lch">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Sound\click.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="tilded\Rogue.tmj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
