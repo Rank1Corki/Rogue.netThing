@@ -9,25 +9,24 @@ namespace Rogue
 {
     internal class Game
     {
-        // Player
+        // Pelaaja
         private PlayerCharacter player;
 
-        // Player name
+        // Pelaajan nimi (tekstikenttä)
         private TextBoxEntry playerNameEntry = new(10);
 
-        // Map
+        // Kartta
         private Map lvl1;
 
-        //Race selection
+        // Rotuvalikko
         MultipleChoiceEntry race = new MultipleChoiceEntry(
-            new string[] { "Human", "Elf", "Dwarf" });  // Change race names
+            new string[] { "Human", "Elf", "Dwarf" });
 
-        //Class selection
+        // Hahmoluokkavalikko
         MultipleChoiceEntry characterClass = new MultipleChoiceEntry(
-            new string[] { "Warrior", "Mage", "Rogue" });  // Change class names
+            new string[] { "Warrior", "Mage", "Rogue" });
 
-
-        // Game state
+        // Pelitilan enum
         public enum GameState
         {
             MainMenu,
@@ -38,67 +37,66 @@ namespace Rogue
             Quit
         }
 
-        // State stack
+        // Pelitilan pino (mahdollistaa takaisin siirtymisen)
         private Stack<GameState> stateStack = new();
 
-        // Menus
+        // Valikot
         private OptionsMenu myOptionsMenu;
         private PauseMenu myPauseMenu;
 
-        // Current game state
+        // Nykyinen tila (varmistaa piirtämisen logiikassa)
         private GameState currentGameState;
 
-        // Enemies
+        // Yksi vihollinen (tähän voisi lisätä listan useita vihollisia varten)
         private Enemy enemy;
 
-        // Sound effect
+        // Ääniefekti
         private Sound soundToPlay;
 
-        // Tile size
+        // Tiilikoko (sprite resoluutio)
         public static readonly int tileSize = 16;
 
-        // Screen width and height
+        // Ikkunan koko
         private const int screen_width = 1280;
         private const int screen_height = 720;
 
         public void Run()
         {
-            // Start in main menu
+            // Aloitetaan päävalikosta
             stateStack.Push(GameState.MainMenu);
 
-            // Create menus
+            // Luodaan valikot ja asetetaan paluunapit
             myOptionsMenu = new OptionsMenu();
             myPauseMenu = new PauseMenu();
 
-            // Enable back navigation
             myOptionsMenu.BackButtonPressedEvent += OnOptionsBackButtonPressed;
             myPauseMenu.BackButtonPressedEvent += OnPauseBackButtonPressed;
 
-            // Console setup
+            // Konsoli-setup
             Console.CursorVisible = false;
             Console.WindowWidth = 60;
             Console.WindowHeight = 26;
 
-            // Create player
+            // Luodaan pelaaja
             player = new PlayerCharacter('@', Raylib.RED, ConsoleColor.Green);
             player.position = new Vector2(3, 3);
 
-            // Initialize map reader
+            // Luetaan kartta TMJ-tiedostosta
             MapReader reader = new();
             lvl1 = reader.ReadTiledMapFromFile("tilded/Rogue.tmj");
 
-            // Load assets
+            // Alustetaan Raylib
             Raylib.InitWindow(screen_width, screen_height, "Raylib");
             Raylib.InitAudioDevice();
             soundToPlay = Raylib.LoadSound("Sound/click.mp3");
             Texture imageTexture = Raylib.LoadTexture("Images/tilemap.png");
 
-            // Setup map and player visuals
+            // Asetetaan kuvat kartalle ja pelaajalle
             lvl1.SetImageAndIndex(imageTexture, 12, 109);
             lvl1.LoadEnemiesAndItems();
             player.SetImageAndIndex(imageTexture, 12, 109);
 
-            // Start game loop
+            // Käynnistetään peli
             GameLoop();
 
             Raylib.CloseWindow();
@@ -139,11 +137,13 @@ namespace Rogue
 
         private void DrawRay()
         {
+            // Placeholder-ruutu tyhjälle peliloopille
             Raylib.BeginDrawing();
             Raylib.ClearBackground(Raylib.BLACK);
             Raylib.EndDrawing();
         }
 
+        // Takaisin-napit valikoissa
         private void OnOptionsBackButtonPressed(object sender, EventArgs args) => stateStack.Pop();
 
         private void OnPauseBackButtonPressed(object sender, GameState newState)
@@ -175,9 +175,9 @@ namespace Rogue
                         myOptionsMenu.DrawMenu();
                         break;
                     case GameState.GameLoop:
-                        DrawRay();
-                        Update();
-                        Draw();
+                        DrawRay();   // Placeholder-tausta
+                        Update();    // Pelaajan liikkuminen
+                        Draw();      // Kartta ja pelaaja
                         break;
                     case GameState.Quit:
                         gameIsOn = false;
@@ -195,26 +195,29 @@ namespace Rogue
 
         private void DrawCharacterMenu(int x, int y, int width)
         {
-            Raylib.ClearBackground(Raylib.GetColor((uint)RayGui.GuiGetStyle((int)GuiControl.DEFAULT, (int)GuiDefaultProperty.BACKGROUND_COLOR)));
+            Raylib.ClearBackground(
+                Raylib.GetColor((uint)RayGui.GuiGetStyle((int)GuiControl.DEFAULT, (int)GuiDefaultProperty.BACKGROUND_COLOR))
+            );
 
+            // Käytetään RayGuiCreatorin MenuCreator-luokkaa
             MenuCreator c = new(x, y, Raylib.GetScreenHeight() / 20, width);
             c.Label("Create Character");
             c.Label("Name Character");
             c.TextBox(playerNameEntry);
             c.Label("Select Class");
-            c.DropDown(characterClass); // Dropdown for class selection
+            c.DropDown(characterClass);
             c.Label("Select Race");
-            c.DropDown(race); // Dropdown for race selection
+            c.DropDown(race);
 
             if (c.Button("Start Game"))
             {
                 string nimi = playerNameEntry.ToString();
-                bool nameOk = !string.IsNullOrEmpty(nimi) && nimi.All(char.IsLetter);  // Name validation
+                bool nameOk = !string.IsNullOrEmpty(nimi) && nimi.All(char.IsLetter);
 
                 bool raceSelect = false;
                 bool classSelect = false;
 
-                // Race selection logic
+                // Rotuvalinta
                 switch (race.ToString())
                 {
                     case "Human":
@@ -231,7 +234,7 @@ namespace Rogue
                         break;
                 }
 
-                // Class selection logic
+                // Luokkavalinta
                 switch (characterClass.ToString())
                 {
                     case "Warrior":
@@ -248,7 +251,7 @@ namespace Rogue
                         break;
                 }
 
-                // Proceed to game if everything is valid
+                // Jos kaikki valinnat ovat kunnossa -> peliin
                 if (nameOk && raceSelect && classSelect)
                     stateStack.Push(currentGameState = GameState.GameLoop);
             }
@@ -257,9 +260,9 @@ namespace Rogue
             Raylib.EndDrawing();
         }
 
-
         private void Update()
         {
+            // Pelaajan liikkumislogiikka ja ääni
             Vector2 newPlace = player.position;
 
             if (Raylib.IsKeyPressed(KeyboardKey.KEY_UP)) { newPlace.Y -= 1; Raylib.PlaySound(soundToPlay); }
@@ -268,6 +271,7 @@ namespace Rogue
             if (Raylib.IsKeyPressed(KeyboardKey.KEY_RIGHT)) { newPlace.X += 1; Raylib.PlaySound(soundToPlay); }
             if (Raylib.IsKeyPressed(KeyboardKey.KEY_TAB)) stateStack.Push(GameState.PauseMenu);
 
+            // Tarkistaa onko kohderuutu lattiaa ennen siirtoa
             if (lvl1.GetTileAtGround((int)newPlace.X, (int)newPlace.Y) == Map.MapTile.Floor)
                 player.position = newPlace;
         }

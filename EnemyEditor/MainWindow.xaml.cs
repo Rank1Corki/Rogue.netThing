@@ -15,12 +15,12 @@ using Newtonsoft.Json;
 
 namespace EnemyEditor
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-     
+        /// <summary>
+        /// Interaction logic for MainWindow.xaml
+        /// </summary>
+
         public MainWindow()
         {
           
@@ -92,11 +92,6 @@ namespace EnemyEditor
             List<Rogue.Enemy> tempList = new List<Rogue.Enemy>();
 
 
-            // TODO: Muuta taulukko JSON muotoon,
-            // käytä tässä NewtonSoft.JSON kirjastoa
-    
-
-            // TODO: Luo tiedosto enemies.json
             string filename = "enemies.json";
             for (int i = 0; i < lstNames.Items.Count; i++)
             {
@@ -107,9 +102,6 @@ namespace EnemyEditor
 
             File.WriteAllText(filename, enemiesArrayJSON);
 
-          
-
-            // TODO: Näytä käyttäjälle viesti että kirjoittaminen onnistui
             errorLabel.Content = "Write OK!";
             
         }
